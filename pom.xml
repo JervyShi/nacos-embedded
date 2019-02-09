@@ -15,12 +15,12 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
-    
+
     <properties>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
     </properties>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -72,6 +72,49 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>com.mycila</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>3.0</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>remove</goal>
+                            <goal>format</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <quiet>true</quiet>
+                    <header>${user.dir}/tools/codestyle/HEADER</header>
+                    <includes>
+                        <include>**/src/main/java/**</include>
+                        <include>**/src/test/java/**</include>
+                    </includes>
+                    <strictCheck>true</strictCheck>
+                    <mapping>
+                        <java>SLASHSTAR_STYLE</java>
+                    </mapping>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>com.googlecode.maven-java-formatter-plugin</groupId>
+                <artifactId>maven-java-formatter-plugin</artifactId>
+                <version>0.4</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>format</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <configFile>${user.dir}/tools/codestyle/formatter.xml</configFile>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.7.8</version>
@@ -119,16 +162,42 @@
                     <testFailureIgnore>true</testFailureIgnore>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>3.0.4</version>
-            </plugin>
-            <plugin>
-                <groupId>org.sonarsource.scanner.maven</groupId>
-                <artifactId>sonar-maven-plugin</artifactId>
-                <version>3.0.2</version>
-            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>jdk8</id>
+            <activation>
+                <jdk>[1.8,)</jdk>
+            </activation>
+            <properties>
+                <maven.javadoc.failOnError>false</maven.javadoc.failOnError>
+                <maven.javadoc.quiet>true</maven.javadoc.quiet>
+            </properties>
+        </profile>
+        <profile>
+            <id>ci-install</id>
+            <properties>
+                <skipTests>true</skipTests>
+                <maven.javadoc.skip>false</maven.javadoc.skip>
+                <module.jacoco.skip>true</module.jacoco.skip>
+            </properties>
+        </profile>
+        <profile>
+            <id>ci-test</id>
+            <properties>
+                <dependency.test.skip>false</dependency.test.skip>
+                <maven.javadoc.skip>true</maven.javadoc.skip>
+                <module.jacoco.skip>false</module.jacoco.skip>
+            </properties>
+        </profile>
+        <profile>
+            <id>release</id>
+            <properties>
+                <maven.javadoc.quite>true</maven.javadoc.quite>
+                <maven.javadoc.skip>false</maven.javadoc.skip>
+            </properties>
+        </profile>
+    </profiles>
 </project>
