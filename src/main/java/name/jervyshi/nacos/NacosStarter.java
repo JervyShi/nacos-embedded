@@ -85,7 +85,7 @@ public class NacosStarter {
 
             if (started.compareAndSet(false, true)) {
                 nacosHomePath = Paths.get(downloadPath.toAbsolutePath().toString(),
-                    String.valueOf(nacosPorts.getServerPort()));
+                    String.valueOf(nacosPorts.getServerPort()), "nacos");
                 if (!isBinaryDownloaded()) {
                     downloadAndUnpackBinary();
                 }
