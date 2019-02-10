@@ -40,8 +40,7 @@ public class NacosStarterTest {
 
     @Parameters
     public static Collection<Object[]> data() {
-        return Arrays.asList(
-            new Object[][] { { "0.6.0" }, { "0.6.1" }, { "0.7.0" }, { "0.8.0" }, { "latest" } });
+        return Arrays.asList(new Object[][] { { "0.8.0" }, { "latest" } });
     }
 
     @Parameter
