@@ -1,16 +1,28 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package name.jervyshi.nacos;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.PosixFilePermission;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
@@ -74,22 +86,32 @@ public class NacosStarter {
                     downloadAndUnpackBinary();
                 }
 
-                File scriptFile = getNacosStartUpScript();
-
                 List<String> command = new ArrayList<>();
-                command.add(scriptFile.getAbsolutePath());
-                if (!isWindows()) {
-                    command.add("-m");
-                    command.add("standalone");
+                if (isWindows()) {
+                    command.add(Paths.get(System.getenv("JAVA_HOME"), "bin", "java.exe")
+                        .toAbsolutePath().toString());
+                } else {
+                    command.add(Paths.get(System.getenv("JAVA_HOME"), "bin", "java")
+                        .toAbsolutePath().toString());
                 }
-                Process innerProcess = new ProcessBuilder().directory(downloadPath.toFile())
-                    .command(command).inheritIO().redirectOutput(Redirect.PIPE).start();
+                command.add("-Dnacos.standalone=true");
+                command.add("-Dnacos.home=" + getAbsolutePath("nacos"));
+                command.add("-jar");
+                command.add(getAbsolutePath("nacos", "target", "nacos-server.jar"));
+                command.add(
+                    "--spring.config.location=classpath:/,classpath:/config/,file:./,file:./config/,file:"
+                            + getAbsolutePath("nacos", "conf") + File.separator);
+                command.add(
+                    "--logging.config=" + getAbsolutePath("nacos", "conf", "nacos-logback.xml"));
+
+                Process innerProcess = new ProcessBuilder()
+                    .directory(Paths.get(getAbsolutePath("nacos")).toFile()).command(command)
+                    .inheritIO().redirectOutput(Redirect.PIPE).start();
 
                 // TODO log process result
                 innerProcess.getInputStream();
 
-                nacosProcess = new NacosProcess(downloadPath, getNacosShutdownScript(), host, port,
-                    innerProcess);
+                nacosProcess = new NacosProcess(host, port, innerProcess);
 
                 logger.info("Starting nacos server on port: {}", port);
                 new NacosWaiter(host, port).avoidUntilNacosServerStarted();
@@ -112,18 +134,6 @@ public class NacosStarter {
 
         logger.info("Unzip nacos archive files into: {}", downloadPath);
         ZipUtil.unzip(archive.getAbsolutePath(), downloadPath.toAbsolutePath().toString());
-
-        if (!isWindows()) {
-            Set<PosixFilePermission> permissions = new HashSet<>();
-            permissions.add(PosixFilePermission.OWNER_READ);
-            permissions.add(PosixFilePermission.OWNER_WRITE);
-            permissions.add(PosixFilePermission.OWNER_EXECUTE);
-            permissions.add(PosixFilePermission.GROUP_READ);
-            permissions.add(PosixFilePermission.OTHERS_READ);
-
-            Files.setPosixFilePermissions(getNacosStartUpScript().toPath(), permissions);
-            Files.setPosixFilePermissions(getNacosShutdownScript().toPath(), permissions);
-        }
     }
 
     private boolean isWindows() {
@@ -131,18 +141,12 @@ public class NacosStarter {
     }
 
     private boolean isBinaryDownloaded() {
-        return getNacosStartUpScript().exists();
+        return getNacosServerJar().exists();
     }
 
-    private File getNacosStartUpScript() {
-        String scriptName = isWindows() ? "startup.cmd" : "startup.sh";
-        Path path = Paths.get(downloadPath.toAbsolutePath().toString(), "nacos", "bin", scriptName);
-        return path.toFile();
-    }
-
-    private File getNacosShutdownScript() {
-        String scriptName = isWindows() ? "shutdown.cmd" : "shutdown.sh";
-        Path path = Paths.get(downloadPath.toAbsolutePath().toString(), "nacos", "bin", scriptName);
+    private File getNacosServerJar() {
+        Path path = Paths.get(downloadPath.toAbsolutePath().toString(), "nacos", "target",
+            "nacos-server.jar");
         return path.toFile();
     }
 
@@ -153,4 +157,7 @@ public class NacosStarter {
         }
     }
 
+    private String getAbsolutePath(String... item) {
+        return Paths.get(downloadPath.toAbsolutePath().toString(), item).toString();
+    }
 }
