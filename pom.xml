@@ -17,9 +17,10 @@
     </licenses>
 
     <properties>
-        <maven.compiler.source>1.7</maven.compiler.source>
-        <maven.compiler.target>1.7</maven.compiler.target>
-        <module.jacoco.skip>false</module.jacoco.skip>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.javadoc.skip>false</maven.javadoc.skip>
         <skipTests>false</skipTests>
     </properties>
 
@@ -49,7 +50,30 @@
     </dependencies>
 
     <build>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <testSourceDirectory>src/test/java</testSourceDirectory>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.10.4</version>
+                <configuration>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <detectOfflineLinks>true</detectOfflineLinks>
+                    <breakiterator>true</breakiterator>
+                    <author>false</author>
+                    <keywords>true</keywords>
+                    <skip>${maven.javadoc.skip}</skip>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.5.1</version>
@@ -130,9 +154,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <configuration>
-                    <skip>${module.jacoco.skip}</skip>
-                </configuration>
+                <version>0.8.2</version>
                 <executions>
                     <execution>
                         <id>default-prepare-agent</id>
@@ -144,7 +166,7 @@
                         <id>default-report</id>
                         <phase>test</phase>
                         <goals>
-                            <goal>report-aggregate</goal>
+                            <goal>report</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -168,7 +190,6 @@
             <properties>
                 <skipTests>true</skipTests>
                 <maven.javadoc.skip>false</maven.javadoc.skip>
-                <module.jacoco.skip>true</module.jacoco.skip>
             </properties>
         </profile>
         <profile>
@@ -176,14 +197,12 @@
             <properties>
                 <dependency.test.skip>false</dependency.test.skip>
                 <maven.javadoc.skip>true</maven.javadoc.skip>
-                <module.jacoco.skip>false</module.jacoco.skip>
             </properties>
         </profile>
         <profile>
             <id>release</id>
             <properties>
                 <maven.javadoc.quite>true</maven.javadoc.quite>
-                <maven.javadoc.skip>false</maven.javadoc.skip>
             </properties>
         </profile>
     </profiles>
