@@ -34,19 +34,20 @@ public class NacosProcess implements AutoCloseable {
 
     private String              host;
 
-    private int                 port;
+    private NacosPorts          nacosPorts;
 
     private Process             process;
 
     /**
      * Instantiates a new Nacos process.
      *
-     * @param host the host  
-     * @param port the port
+     * @param host the host    
+     * @param nacosPorts the nacos ports   
+     * @param process the process
      */
-    NacosProcess(String host, int port, Process process) {
+    NacosProcess(String host, NacosPorts nacosPorts, Process process) {
         this.host = host;
-        this.port = port;
+        this.nacosPorts = nacosPorts;
         this.process = process;
     }
 
@@ -54,10 +55,28 @@ public class NacosProcess implements AutoCloseable {
     public void close() throws Exception {
         logger.info("Stopping nacos server");
         process.destroy();
-        if (new NacosWaiter(host, port).avoidUntilNacosServerStopped()) {
+        if (new NacosWaiter(host, nacosPorts.getServerPort()).avoidUntilNacosServerStopped()) {
             logger.info("Stopped nacos server");
         } else {
             logger.warn("Can not stop nacos server");
         }
+    }
+
+    /**
+     * Gets server port.
+     *
+     * @return the server port
+     */
+    public int getServerPort() {
+        return nacosPorts.getServerPort();
+    }
+
+    /**
+     * Gets host.
+     *
+     * @return the host
+     */
+    public String getHost() {
+        return host;
     }
 }

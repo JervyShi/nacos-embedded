@@ -21,7 +21,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 import org.slf4j.Logger;
@@ -63,15 +62,5 @@ public class NacosBinaryDownloader {
                 filePath, e);
             throw new NacosEmbeddedException("get nacos binary archive failed", e);
         }
-    }
-
-    /**
-     * The entry point of application.
-     *
-     * @param args the input arguments
-     */
-    public static void main(String[] args) {
-        File file = getNacosBinaryArchive("0.8.0", Paths.get("/tmp", "nacos-tmp.zip"));
-        System.out.println(file.getAbsolutePath());
     }
 }

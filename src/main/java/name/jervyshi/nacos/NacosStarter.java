@@ -19,6 +19,7 @@ package name.jervyshi.nacos;
 import java.io.File;
 import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -48,13 +49,15 @@ public class NacosStarter {
 
     private Path                downloadPath;
 
+    private Path                nacosHomePath;
+
     private AtomicBoolean       started;
 
     private NacosProcess        nacosProcess;
 
     private String              host;
 
-    private int                 port;
+    private NacosPorts          nacosPorts;
 
     /**
      * Instantiates a new Nacos starter.
@@ -62,12 +65,11 @@ public class NacosStarter {
      * @param nacosVersion the nacos version 
      * @param downloadPath the download path
      */
-    public NacosStarter(String nacosVersion, Path downloadPath) {
+    NacosStarter(String nacosVersion, Path downloadPath, String host, NacosPorts nacosPorts) {
         this.nacosVersion = nacosVersion;
         this.downloadPath = downloadPath;
-        this.host = "127.0.0.1";
-        // TODO need support change port from nacos starter builder
-        this.port = 8848;
+        this.host = host;
+        this.nacosPorts = nacosPorts;
         this.started = new AtomicBoolean(false);
     }
 
@@ -82,9 +84,13 @@ public class NacosStarter {
             checkInitialState();
 
             if (started.compareAndSet(false, true)) {
+                nacosHomePath = Paths.get(downloadPath.toAbsolutePath().toString(),
+                    String.valueOf(nacosPorts.getServerPort()), "nacos");
                 if (!isBinaryDownloaded()) {
                     downloadAndUnpackBinary();
                 }
+
+                int serverPort = nacosPorts.getServerPort();
 
                 List<String> command = new ArrayList<>();
                 if (isWindows()) {
@@ -95,26 +101,25 @@ public class NacosStarter {
                         .toAbsolutePath().toString());
                 }
                 command.add("-Dnacos.standalone=true");
-                command.add("-Dnacos.home=" + getAbsolutePath("nacos"));
+                command.add("-Dnacos.home=" + nacosHomePath.toAbsolutePath().toString());
+                command.add("-Dserver.port=" + serverPort);
                 command.add("-jar");
-                command.add(getAbsolutePath("nacos", "target", "nacos-server.jar"));
+                command.add(getAbsolutePath("target", "nacos-server.jar"));
                 command.add(
                     "--spring.config.location=classpath:/,classpath:/config/,file:./,file:./config/,file:"
-                            + getAbsolutePath("nacos", "conf") + File.separator);
-                command.add(
-                    "--logging.config=" + getAbsolutePath("nacos", "conf", "nacos-logback.xml"));
+                            + getAbsolutePath("conf") + File.separator);
+                command.add("--logging.config=" + getAbsolutePath("conf", "nacos-logback.xml"));
 
-                Process innerProcess = new ProcessBuilder()
-                    .directory(Paths.get(getAbsolutePath("nacos")).toFile()).command(command)
-                    .inheritIO().redirectOutput(Redirect.PIPE).start();
+                Process innerProcess = new ProcessBuilder().directory(nacosHomePath.toFile())
+                    .command(command).inheritIO().redirectOutput(Redirect.PIPE).start();
 
                 // TODO log process result
                 innerProcess.getInputStream();
 
-                nacosProcess = new NacosProcess(host, port, innerProcess);
+                nacosProcess = new NacosProcess(host, nacosPorts, innerProcess);
 
-                logger.info("Starting nacos server on port: {}", port);
-                new NacosWaiter(host, port).avoidUntilNacosServerStarted();
+                logger.info("Starting nacos server on port: {}", serverPort);
+                new NacosWaiter(host, serverPort).avoidUntilNacosServerStarted();
                 logger.info("Nacos server started");
             }
         } catch (IOException e) {
@@ -126,14 +131,18 @@ public class NacosStarter {
     }
 
     private void downloadAndUnpackBinary() throws IOException {
-        Path filePath = Paths.get(downloadPath.toAbsolutePath().toString(),
-            String.format("nacos-server-%s.zip", nacosVersion));
-        logger.info("Download nacos archive to {}", filePath);
+        Path filePath = getDownloadFilePath();
+        // reuse when same zip file already downloaded
+        if (!Files.exists(filePath)) {
+            logger.info("Download nacos archive to {}", filePath);
+            NacosBinaryDownloader.getNacosBinaryArchive(nacosVersion, filePath);
+        }
 
-        File archive = NacosBinaryDownloader.getNacosBinaryArchive(nacosVersion, filePath);
+        String unzipLocation = Paths.get(downloadPath.toAbsolutePath().toString(),
+            String.valueOf(nacosPorts.getServerPort())).toAbsolutePath().toString();
+        logger.info("Unzip nacos archive files into: {}", unzipLocation);
 
-        logger.info("Unzip nacos archive files into: {}", downloadPath);
-        ZipUtil.unzip(archive.getAbsolutePath(), downloadPath.toAbsolutePath().toString());
+        ZipUtil.unzip(filePath.toAbsolutePath().toString(), unzipLocation);
     }
 
     private boolean isWindows() {
@@ -144,8 +153,13 @@ public class NacosStarter {
         return getNacosServerJar().exists();
     }
 
+    private Path getDownloadFilePath() {
+        return Paths.get(downloadPath.toAbsolutePath().toString(),
+            String.format("nacos-server-%s.zip", nacosVersion));
+    }
+
     private File getNacosServerJar() {
-        Path path = Paths.get(downloadPath.toAbsolutePath().toString(), "nacos", "target",
+        Path path = Paths.get(nacosHomePath.toAbsolutePath().toString(), "target",
             "nacos-server.jar");
         return path.toFile();
     }
@@ -158,6 +172,6 @@ public class NacosStarter {
     }
 
     private String getAbsolutePath(String... item) {
-        return Paths.get(downloadPath.toAbsolutePath().toString(), item).toString();
+        return Paths.get(nacosHomePath.toAbsolutePath().toString(), item).toString();
     }
 }
