@@ -42,7 +42,7 @@ public class NacosBinaryDownloader {
 
     /** logger */
     private static final Logger logger           = LoggerFactory
-        .getLogger(NacosBinaryDownloader.class);
+                                                     .getLogger(NacosBinaryDownloader.class);
 
     /**
      * Gets nacos binary archive.
