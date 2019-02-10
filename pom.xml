@@ -130,6 +130,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.7.9</version>
                 <configuration>
                     <skip>${module.jacoco.skip}</skip>
                 </configuration>
