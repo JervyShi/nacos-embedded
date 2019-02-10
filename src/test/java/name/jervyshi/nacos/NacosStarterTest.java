@@ -16,7 +16,12 @@
  */
 package name.jervyshi.nacos;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
+
+import name.jervyshi.nacos.infra.NacosClient;
 
 /**
  * The type Nacos starter test.
@@ -34,6 +39,10 @@ public class NacosStarterTest {
             .build();
         NacosProcess start = nacosStarter.start();
 
+        NacosClient client = new NacosClient("127.0.0.1", 8848);
+        assertTrue(client.isHealthy());
+
         start.close();
+        assertFalse(client.isHealthy());
     }
 }
