@@ -31,9 +31,13 @@ import name.jervyshi.nacos.infra.NacosVersionGetter;
  */
 public class NacosStarterBuilder {
 
-    private Path   downloadPath;
+    private Path              downloadPath;
 
-    private String nacosVersion;
+    private String            nacosVersion;
+
+    private String            host;
+
+    private NacosPortsBuilder nacosPortsBuilder = NacosPortsBuilder.nacosPorts();
 
     private NacosStarterBuilder() {
     }
@@ -50,7 +54,7 @@ public class NacosStarterBuilder {
     /**
      * With download path nacos starter builder.
      *
-     * @param downloadPath the download path  
+     * @param downloadPath the download path   
      * @return the nacos starter builder
      */
     public NacosStarterBuilder withDownloadPath(Path downloadPath) {
@@ -61,11 +65,27 @@ public class NacosStarterBuilder {
     /**
      * With nacos version nacos starter builder.
      *
-     * @param nacosVersion the nacos version 
+     * @param nacosVersion the nacos version  
      * @return the nacos starter builder
      */
     public NacosStarterBuilder withNacosVersion(String nacosVersion) {
         this.nacosVersion = nacosVersion;
+        return this;
+    }
+
+    public NacosStarterBuilder withHost(String host) {
+        this.host = host;
+        return this;
+    }
+
+    /**
+     * With server port nacos starter builder.
+     *
+     * @param serverPort the server port 
+     * @return the nacos starter builder
+     */
+    public NacosStarterBuilder withServerPort(int serverPort) {
+        this.nacosPortsBuilder.withServerPort(serverPort);
         return this;
     }
 
@@ -76,7 +96,8 @@ public class NacosStarterBuilder {
      */
     public NacosStarter build() {
         applyDefaults();
-        return new NacosStarter(this.nacosVersion, this.downloadPath);
+        return new NacosStarter(this.nacosVersion, this.downloadPath, this.host,
+            this.nacosPortsBuilder.build());
     }
 
     private void applyDefaults() {
@@ -86,8 +107,11 @@ public class NacosStarterBuilder {
                 this.nacosVersion = NacosVersionGetter.getLatestVersion();
             }
             if (downloadPath == null) {
-                downloadPath = Paths.get(Files.createTempDirectory("").getParent().toString(),
+                this.downloadPath = Paths.get(Files.createTempDirectory("").getParent().toString(),
                     "nacos-embedded-" + this.nacosVersion);
+            }
+            if (this.host == null || this.host.equals("")) {
+                this.host = "127.0.0.1";
             }
             if (!Files.exists(downloadPath)) {
                 Files.createDirectories(downloadPath);

@@ -54,12 +54,12 @@ public class NacosStarterTest {
     public void start() throws Exception {
         NacosStarter nacosStarter = NacosStarterBuilder.nacosStarter().withNacosVersion(version)
             .build();
-        NacosProcess start = nacosStarter.start();
+        NacosProcess process = nacosStarter.start();
 
-        NacosClient client = new NacosClient("127.0.0.1", 8848);
+        NacosClient client = new NacosClient(process.getHost(), process.getServerPort());
         assertTrue(client.isHealthy());
 
-        start.close();
+        process.close();
         assertFalse(client.isHealthy());
     }
 }
