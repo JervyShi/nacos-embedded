@@ -81,7 +81,8 @@ public class NacosStarterBuilder {
 
     private void applyDefaults() {
         try {
-            if (this.nacosVersion == null || this.nacosVersion.equals("")) {
+            if (this.nacosVersion == null || this.nacosVersion.equals("")
+                || this.nacosVersion.equals("latest")) {
                 this.nacosVersion = NacosVersionGetter.getLatestVersion();
             }
             if (downloadPath == null) {

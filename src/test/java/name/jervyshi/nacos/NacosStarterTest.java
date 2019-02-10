@@ -19,7 +19,14 @@ package name.jervyshi.nacos;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameter;
+import org.junit.runners.Parameterized.Parameters;
 
 import name.jervyshi.nacos.infra.NacosClient;
 
@@ -28,14 +35,24 @@ import name.jervyshi.nacos.infra.NacosClient;
  * @author JervyShi
  * @version $Id : NacosStarterTest.java, v 0.1 2019-02-09 17:36 JervyShi Exp $$
  */
+@RunWith(Parameterized.class)
 public class NacosStarterTest {
+
+    @Parameters
+    public static Collection<Object[]> data() {
+        return Arrays.asList(
+            new Object[][] { { "0.6.0" }, { "0.6.1" }, { "0.7.0" }, { "0.8.0" }, { "latest" } });
+    }
+
+    @Parameter
+    public String version;
 
     /**
      * Start.
      */
     @Test
     public void start() throws Exception {
-        NacosStarter nacosStarter = NacosStarterBuilder.nacosStarter().withNacosVersion("0.8.0")
+        NacosStarter nacosStarter = NacosStarterBuilder.nacosStarter().withNacosVersion(version)
             .build();
         NacosProcess start = nacosStarter.start();
 
