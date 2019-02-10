@@ -44,7 +44,7 @@ public class NacosProcess implements AutoCloseable {
      * @param host the host  
      * @param port the port
      */
-    public NacosProcess(String host, int port, Process process) {
+    NacosProcess(String host, int port, Process process) {
         this.host = host;
         this.port = port;
         this.process = process;
