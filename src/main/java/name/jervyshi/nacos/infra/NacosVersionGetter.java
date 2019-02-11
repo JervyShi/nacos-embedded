@@ -42,7 +42,7 @@ public class NacosVersionGetter {
 
     /** logger */
     private static final Logger logger           = LoggerFactory
-                                                     .getLogger(NacosVersionGetter.class);
+        .getLogger(NacosVersionGetter.class);
 
     /**
      * Gets latest version.
@@ -54,6 +54,7 @@ public class NacosVersionGetter {
             StringBuilder result = new StringBuilder();
             URL url = new URL(NACOS_LATEST_URL);
             HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            conn.addRequestProperty("User-Agent", "nacos embedded version getter");
             BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             String line;
             while ((line = rd.readLine()) != null) {
