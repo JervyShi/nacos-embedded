@@ -42,7 +42,7 @@ public class NacosVersionGetter {
 
     /** logger */
     private static final Logger logger           = LoggerFactory
-        .getLogger(NacosVersionGetter.class);
+                                                     .getLogger(NacosVersionGetter.class);
 
     /**
      * Gets latest version.
