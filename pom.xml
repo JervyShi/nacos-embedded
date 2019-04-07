@@ -4,9 +4,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>name.jervyshi.nacos</groupId>
+    <groupId>name.jervyshi</groupId>
     <artifactId>nacos-embedded</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
+
+    <name>${project.groupId}:${project.artifactId}</name>
+    <url>https://github.com/JervyShi/nacos-embedded</url>
+    <description>Nacos-embedded provides easy way to run Nacos in integration tests. Inspired by embedded-consul.</description>
 
     <licenses>
         <license>
@@ -15,6 +19,19 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+
+    <developers>
+        <developer>
+            <name>JervyShi</name>
+            <email>jervyshi@gmail.com</email>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git@github.com:JervyShi/nacos-embedded.git</connection>
+        <developerConnection>scm:git:git@github.com:JervyShi/nacos-embedded.git</developerConnection>
+        <url>https://github.com/JervyShi/nacos-embedded</url>
+    </scm>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -204,6 +221,67 @@
             <properties>
                 <maven.javadoc.quite>true</maven.javadoc.quite>
             </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.10.4</version>
+                        <configuration>
+                            <encoding>${project.build.sourceEncoding}</encoding>
+                            <detectOfflineLinks>true</detectOfflineLinks>
+                            <breakiterator>true</breakiterator>
+                            <author>false</author>
+                            <keywords>true</keywords>
+                            <quiet>true</quiet>
+                            <includeDependencySources>true</includeDependencySources>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>1.6.7</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>ossrh</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>false</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+            <distributionManagement>
+                <snapshotRepository>
+                    <id>ossrh</id>
+                    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+                </snapshotRepository>
+                <repository>
+                    <id>ossrh</id>
+                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+                </repository>
+            </distributionManagement>
         </profile>
     </profiles>
 </project>
