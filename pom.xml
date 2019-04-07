@@ -4,9 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>name.jervyshi.nacos</groupId>
+    <groupId>name.jervyshi</groupId>
     <artifactId>nacos-embedded</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
 
     <licenses>
         <license>
@@ -15,6 +15,19 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+
+    <developers>
+        <developer>
+            <name>JervyShi</name>
+            <email>jervyshi@gmail.com</email>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git@github.com:JervyShi/nacos-embedded.git</connection>
+        <developerConnection>scm:git:git@github.com:JervyShi/nacos-embedded.git</developerConnection>
+        <url>https://github.com/JervyShi/nacos-embedded</url>
+    </scm>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
