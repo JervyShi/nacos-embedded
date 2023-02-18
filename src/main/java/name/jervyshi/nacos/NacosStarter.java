@@ -49,19 +49,19 @@ public class NacosStarter {
      */
     private static final Logger logger = LoggerFactory.getLogger(NacosStarter.class);
 
-    private String nacosVersion;
+    private String              nacosVersion;
 
-    private Path downloadPath;
+    private Path                downloadPath;
 
-    private Path nacosHomePath;
+    private Path                nacosHomePath;
 
-    private AtomicBoolean started;
+    private AtomicBoolean       started;
 
-    private NacosProcess nacosProcess;
+    private NacosProcess        nacosProcess;
 
-    private String host;
+    private String              host;
 
-    private NacosPorts nacosPorts;
+    private NacosPorts          nacosPorts;
 
     /**
      * Instantiates a new Nacos starter.
@@ -152,7 +152,7 @@ public class NacosStarter {
         }
 
         String unzipLocation = Paths.get(downloadPath.toAbsolutePath().toString(),
-                String.valueOf(nacosPorts.getServerPort())).toAbsolutePath().toString();
+            String.valueOf(nacosPorts.getServerPort())).toAbsolutePath().toString();
         logger.info("Unzip nacos archive files into: {}", unzipLocation);
 
         ZipUtil.unzip(filePath.toAbsolutePath().toString(), unzipLocation);
@@ -168,19 +168,19 @@ public class NacosStarter {
 
     private Path getDownloadFilePath() {
         return Paths.get(downloadPath.toAbsolutePath().toString(),
-                String.format("nacos-server-%s.zip", nacosVersion));
+            String.format("nacos-server-%s.zip", nacosVersion));
     }
 
     private File getNacosServerJar() {
         Path path = Paths.get(nacosHomePath.toAbsolutePath().toString(), "target",
-                "nacos-server.jar");
+            "nacos-server.jar");
         return path.toFile();
     }
 
     private void checkInitialState() {
         if (started.get()) {
             throw new NacosEmbeddedException(
-                    "This Nacos Starter already started nacos server. Create new Nacos Server Instance");
+                "This Nacos Starter already started nacos server. Create new Nacos Server Instance");
         }
     }
 
