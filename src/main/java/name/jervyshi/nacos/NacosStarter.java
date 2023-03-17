@@ -63,17 +63,20 @@ public class NacosStarter {
 
     private NacosPorts          nacosPorts;
 
+    private String              nacosTokenSecretKey;
+
     /**
      * Instantiates a new Nacos starter.
      *
      * @param nacosVersion the nacos version
      * @param downloadPath the download path
      */
-    NacosStarter(String nacosVersion, Path downloadPath, String host, NacosPorts nacosPorts) {
+    NacosStarter(String nacosVersion, Path downloadPath, String host, NacosPorts nacosPorts, String nacosTokenSecretKey) {
         this.nacosVersion = nacosVersion;
         this.downloadPath = downloadPath;
         this.host = host;
         this.nacosPorts = nacosPorts;
+        this.nacosTokenSecretKey = nacosTokenSecretKey;
         this.started = new AtomicBoolean(false);
     }
 
@@ -106,6 +109,7 @@ public class NacosStarter {
                             .toAbsolutePath().toString());
                 }
                 command.add("-Dnacos.standalone=true");
+                command.add("-Dnacos.core.auth.plugin.nacos.token.secret.key=" + nacosTokenSecretKey);
                 command.add("-Dnacos.home=" + nacosHomePath.toAbsolutePath().toString());
                 command.add("-Dserver.port=" + serverPort);
                 command.add("-jar");
