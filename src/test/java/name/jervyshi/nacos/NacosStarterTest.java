@@ -52,7 +52,9 @@ public class NacosStarterTest {
      */
     @Test
     public void start() throws Exception {
-        NacosStarter nacosStarter = NacosStarterBuilder.nacosStarter().withNacosVersion(version)
+        NacosStarter nacosStarter = NacosStarterBuilder.nacosStarter()
+            .withNacosVersion(version)
+            .withNacosTokenSecretKey("SecretKey012345678901234567890123456789012345678901234567890123456789")
             .build();
         NacosProcess process = nacosStarter.start();
 

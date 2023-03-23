@@ -37,6 +37,8 @@ public class NacosStarterBuilder {
 
     private String            host;
 
+    private String            nacosTokenSecretKey;
+
     private NacosPortsBuilder nacosPortsBuilder = NacosPortsBuilder.nacosPorts();
 
     private NacosStarterBuilder() {
@@ -89,6 +91,11 @@ public class NacosStarterBuilder {
         return this;
     }
 
+    public NacosStarterBuilder withNacosTokenSecretKey(String nacosTokenSecretKey) {
+        this.nacosTokenSecretKey = nacosTokenSecretKey;
+        return this;
+    }
+
     /**
      * Build nacos starter.
      *
@@ -97,7 +104,7 @@ public class NacosStarterBuilder {
     public NacosStarter build() {
         applyDefaults();
         return new NacosStarter(this.nacosVersion, this.downloadPath, this.host,
-            this.nacosPortsBuilder.build());
+            this.nacosPortsBuilder.build(), nacosTokenSecretKey);
     }
 
     private void applyDefaults() {
