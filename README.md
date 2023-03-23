@@ -6,7 +6,7 @@
 Nacos-embedded provides easy way to run Nacos in integration tests. Inspired by [embedded-consul](https://github.com/pszymczyk/embedded-consul).
 
 Compatible with jdk1.8+. 
-Working on all operating systems: Mac, Linux, Windows.
+Working on all operating systems: Mac(Intel & Apple silicon), Linux, Windows.
 
 ## How to get it?
 
@@ -14,7 +14,7 @@ Working on all operating systems: Mac, Linux, Windows.
 <dependency>
     <groupId>name.jervyshi</groupId>
     <artifactId>nacos-embedded</artifactId>
-    <version>0.2.0</version>
+    <version>0.3.0</version>
     <scope>test</scope>
 </dependency>
 ```
